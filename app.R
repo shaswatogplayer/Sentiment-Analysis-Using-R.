@@ -1,94 +1,56 @@
-############################################
-# Data Professor                           #
-# http://youtube.com/dataprofessor         #
-# http://github.com/dataprofessor          #
-# http://facebook.com/dataprofessor        #
-# https://www.instagram.com/data.professor #
-############################################
+####################################
+# Data Professor                   #
+# http://youtube.com/dataprofessor #
+# http://github.com/dataprofessor  #
+####################################
 
+# Modified from Winston Chang, 
+# https://shiny.rstudio.com/gallery/shiny-theme-selector.html
+
+# Concepts about Reactive programming used by Shiny, 
+# https://shiny.rstudio.com/articles/reactivity-overview.html
+
+# Load R packages
 library(shiny)
 library(shinythemes)
 
 
-####################################
-# User Interface                   #
-####################################
-ui <- fluidPage(theme = shinytheme("united"),
-                navbarPage("BMI Calculator:",
-                           
-                           tabPanel("Home",
-                                    # Input values
-                                    sidebarPanel(
-                                      HTML("<h3>Input parameters</h3>"),
-                                      sliderInput("height", 
-                                                  label = "Height", 
-                                                  value = 175, 
-                                                  min = 40, 
-                                                  max = 250),
-                                      sliderInput("weight", 
-                                                  label = "Weight", 
-                                                  value = 70, 
-                                                  min = 20, 
-                                                  max = 100),
-                                      
-                                      actionButton("submitbutton", 
-                                                   "Submit", 
-                                                   class = "btn btn-primary")
-                                    ),
-                                    
-                                    mainPanel(
-                                      tags$label(h3('Status/Output')), # Status/Output Text Box
-                                      verbatimTextOutput('contents'),
-                                      tableOutput('tabledata') # Results table
-                                    ) # mainPanel()
-                                    
-                           ), #tabPanel(), Home
-                           
-                           tabPanel("About", 
-                                    titlePanel("About"), 
-                                    div(includeMarkdown("about.md"), 
-                                        align="justify")
-                           ) #tabPanel(), About
-                           
-                ) # navbarPage()
-) # fluidPage()
+  # Define UI
+  ui <- fluidPage(theme = shinytheme("cerulean"),
+    navbarPage(
+      # theme = "cerulean",  # <--- To use a theme, uncomment this
+      "My first app",
+      tabPanel("Navbar 1",
+               sidebarPanel(
+                 tags$h3("Input:"),
+                 textInput("txt1", "Given Name:", ""),
+                 textInput("txt2", "Surname:", ""),
+                 
+               ), # sidebarPanel
+               mainPanel(
+                            h1("Header 1"),
+                            
+                            h4("Output 1"),
+                            verbatimTextOutput("txtout"),
 
-
-####################################
-# Server                           #
-####################################
-server <- function(input, output, session) {
+               ) # mainPanel
+               
+      ), # Navbar 1, tabPanel
+      tabPanel("Navbar 2", "This panel is intentionally left blank"),
+      tabPanel("Navbar 3", "This panel is intentionally left blank")
   
-  # Input Data
-  datasetInput <- reactive({  
+    ) # navbarPage
+  ) # fluidPage
+
+  
+  # Define server function  
+  server <- function(input, output) {
     
-    bmi <- input$weight/( (input$height/100) * (input$height/100) )
-    bmi <- data.frame(bmi)
-    names(bmi) <- "BMI"
-    print(bmi)
-    
-  })
+    output$txtout <- renderText({
+      paste( input$txt1, input$txt2, sep = " " )
+    })
+  } # server
   
-  # Status/Output Text Box
-  output$contents <- renderPrint({
-    if (input$submitbutton>0) { 
-      isolate("Calculation complete.") 
-    } else {
-      return("Server is ready for calculation.")
-    }
-  })
-  
-  # Prediction results table
-  output$tabledata <- renderTable({
-    if (input$submitbutton>0) { 
-      isolate(datasetInput()) 
-    } 
-  })
-  
-}
 
-
-####################################
-# Create Shiny App                 #
-####################################
-shinyApp(ui = ui, server = server)
+  # Create Shiny object
+  shinyApp(ui = ui, server = server)
